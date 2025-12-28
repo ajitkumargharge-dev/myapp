@@ -15,8 +15,10 @@ pipeline {
 
         stage('Install Dependencies & Test') {
             steps {
-                sh 'pip install -r requirements.txt'
-                sh 'pytest --junitxml=reports.xml'
+                sh 'python3 -m venv venv'
+                sh 'source venv/bin/activate && pip install --upgrade pip'
+                sh 'source venv/bin/activate && pip install -r requirements.txt'
+                sh 'source venv/bin/activate && pytest --junitxml=reports.xml'
             }
             post {
                 always {
