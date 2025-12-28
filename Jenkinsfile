@@ -1,9 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'python:3.12-slim' } // Use Python in a container
+    }
 
     environment {
         DOCKER_HUB_REPO = 'ajitkumargharge/app'
-        DOCKER_IMAGE_TAG = "latest"
+        DOCKER_IMAGE_TAG = 'latest'
     }
 
     stages {
@@ -16,20 +18,19 @@ pipeline {
         stage('Install Dependencies & Test') {
             steps {
                 sh '''
-                    # Create isolated virtual environment
-                    python3 -m venv venv
+                    # Upgrade pip
+                    pip install --upgrade pip
 
-                    # Use pip from the virtual environment directly
-                    venv/bin/pip install --upgrade pip
-                    venv/bin/pip install -r requirements.txt
+                    # Install required packages
+                    pip install -r requirements.txt
 
-                    # Run tests
-                    venv/bin/pytest --junitxml=reports.xml
+                    # Run tests and generate JUnit XML report
+                    pytest --junitxml=reports.xml
                 '''
             }
             post {
                 always {
-                    junit 'reports.xml'
+                    junit 'reports.xml' // Record test results in Jenkins
                 }
             }
         }
