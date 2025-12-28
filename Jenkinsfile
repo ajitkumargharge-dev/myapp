@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_REPO = 'yourdockerhubusername/myapp'
+        DOCKER_HUB_REPO = 'ajitkumargharge/app'
         DOCKER_IMAGE_TAG = "latest"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/myapp.git'
+                git branch: 'main', url: 'https://github.com/ajitkumargharge-dev/myapp.git'
             }
         }
 
