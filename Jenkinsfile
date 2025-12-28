@@ -16,20 +16,16 @@ pipeline {
         stage('Install Dependencies & Test') {
             steps {
                 sh '''
-            # Create virtual environment (isolated)
-            python3 -m venv venv --without-pip
+                    # Create isolated virtual environment
+                    python3 -m venv venv
 
-            # Bootstrap pip inside venv
-            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-            venv/bin/python get-pip.py
+                    # Use pip from the virtual environment directly
+                    venv/bin/pip install --upgrade pip
+                    venv/bin/pip install -r requirements.txt
 
-            # Install only required packages
-            venv/bin/pip install --upgrade pip
-            venv/bin/pip install -r requirements.txt
-
-            # Run tests
-            venv/bin/pytest --junitxml=reports.xml
-        '''
+                    # Run tests
+                    venv/bin/pytest --junitxml=reports.xml
+                '''
             }
             post {
                 always {
@@ -46,8 +42,8 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'Dockerhubusername', passwordVariable: 'Dockerhubpassword')]) {
-                    sh "echo $Dockerhubpassword | docker login -u $Dockerhubusername --password-stdin"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
                     sh "docker push $DOCKER_HUB_REPO:$DOCKER_IMAGE_TAG"
                 }
             }
