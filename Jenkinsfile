@@ -33,8 +33,8 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'Dockerhubusername', passwordVariable: 'Dockerhubpassword')]) {
+                    sh "echo $Dockerhubpassword | docker login -u $Dockerhubusername --password-stdin"
                     sh "docker push $DOCKER_HUB_REPO:$DOCKER_IMAGE_TAG"
                 }
             }
