@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        docker { image 'python:3.12-slim' } // Use Python in a container
-    }
+    agent any
 
     environment {
         DOCKER_HUB_REPO = 'ajitkumargharge/app'
@@ -17,20 +15,18 @@ pipeline {
 
         stage('Install Dependencies & Test') {
             steps {
+                // Run inside Docker manually
                 sh '''
-                    # Upgrade pip
-                    pip install --upgrade pip
-
-                    # Install required packages
-                    pip install -r requirements.txt
-
-                    # Run tests and generate JUnit XML report
-                    pytest --junitxml=reports.xml
+                    docker run --rm -v $PWD:/app -w /app python:3.12-slim /bin/bash -c "
+                        pip install --upgrade pip &&
+                        pip install -r requirements.txt &&
+                        pytest --junitxml=reports.xml
+                    "
                 '''
             }
             post {
                 always {
-                    junit 'reports.xml' // Record test results in Jenkins
+                    junit 'reports.xml'
                 }
             }
         }
