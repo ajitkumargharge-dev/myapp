@@ -16,11 +16,19 @@ pipeline {
         stage('Install Dependencies & Test') {
             steps {
                 sh '''
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
-            pytest --junitxml=reports.xml
+            # Create virtual environment (isolated)
+            python3 -m venv venv --without-pip
+
+            # Bootstrap pip inside venv
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            venv/bin/python get-pip.py
+
+            # Install only required packages
+            venv/bin/pip install --upgrade pip
+            venv/bin/pip install -r requirements.txt
+
+            # Run tests
+            venv/bin/pytest --junitxml=reports.xml
         '''
             }
             post {
